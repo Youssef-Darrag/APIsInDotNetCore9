@@ -88,7 +88,7 @@ namespace MoviesApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Movie>> CreateAsync([FromForm] MovieDto dto)
+        public async Task<ActionResult<Movie>> CreateAsync([FromForm] CreateMovieDto dto)
         {
             if (!_allowedExtensions.Contains(Path.GetExtension(dto.Poster.FileName).ToLower()))
                 return BadRequest("Only .png and .jpg images are allowed!");
@@ -116,6 +116,46 @@ namespace MoviesApi.Controllers
             };
 
             await _context.AddAsync(movie);
+            await _context.SaveChangesAsync();
+
+            return Ok(movie);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Movie>> UpdateAsync(int id, [FromForm] UpdateMovieDto dto)
+        {
+            var movie = await _context.Movies.FindAsync(id);
+
+            if (movie == null)
+                return NotFound($"No movie was found with ID: {id}");
+
+            var isValidGenre = await _context.Genres.AnyAsync(g => g.Id == dto.GenreId);
+
+            if (!isValidGenre)
+                return BadRequest("Invalid genre ID!");
+
+            // If a new poster is provided, validate and process it
+            if (dto.Poster != null)
+            {
+                if (!_allowedExtensions.Contains(Path.GetExtension(dto.Poster.FileName).ToLower()))
+                    return BadRequest("Only .png and .jpg images are allowed!");
+
+                if (dto.Poster.Length > _maxAllowedPosterSize)
+                    return BadRequest("Max allowed size for poster is 1MB!");
+
+                using var dataStream = new MemoryStream();
+
+                await dto.Poster.CopyToAsync(dataStream);
+
+                movie.Poster = dataStream.ToArray();
+            }
+
+            movie.Title = dto.Title;
+            movie.Year = dto.Year;
+            movie.Rate = dto.Rate;
+            movie.Storeline = dto.Storeline;
+            movie.GenreId = dto.GenreId;
+
             await _context.SaveChangesAsync();
 
             return Ok(movie);
