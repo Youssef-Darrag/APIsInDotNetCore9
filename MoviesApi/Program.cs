@@ -13,6 +13,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddCors();
 
 builder.Services.AddTransient<IGenresService, GenresService>();
+builder.Services.AddTransient<IMoviesService, MoviesService>();
 
 var app = builder.Build();
 

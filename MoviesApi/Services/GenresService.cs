@@ -42,5 +42,10 @@
 
             return genre;
         }
+
+        public async Task<bool> IsValidGenre(byte id)
+        {
+            return await _context.Genres.AnyAsync(g => g.Id == id);
+        }
     }
 }
