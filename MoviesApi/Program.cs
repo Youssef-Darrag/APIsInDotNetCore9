@@ -12,6 +12,8 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddCors();
 
+builder.Services.AddTransient<IGenresService, GenresService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
