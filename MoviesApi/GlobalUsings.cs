@@ -1,4 +1,5 @@
-﻿global using Microsoft.EntityFrameworkCore;
+﻿global using AutoMapper;
+global using Microsoft.EntityFrameworkCore;
 global using MoviesApi.DTOs;
 global using MoviesApi.Models;
 global using MoviesApi.Services;
